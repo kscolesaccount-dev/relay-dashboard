@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Relay Control Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+</head>
+<body>
+  <header>
+    <h1>Relay Control Dashboard</h1>
+    <div id="connection-status" class="status status-offline">Offline</div>
+  </header>
+
+  <main>
+    <section class="card">
+      <h2>Relay 1</h2>
+      <p>Current state: <span id="relay-state">Unknown</span></p>
+      <button id="relay-toggle">Toggle Relay</button>
+    </section>
+  </main>
+
+  <footer>
+    <small>Powered by Firebase & ESP32</small>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
