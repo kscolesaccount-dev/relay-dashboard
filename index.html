@@ -1,33 +1,168 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Relay Control Dashboard</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <title>Bell Ringer Control</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <style>
+    :root {
+      --bg: #f5f5f5;
+      --text: #000;
+      --btn1: #007bff;
+      --btn1-active: #0056b3;
+      --btn2: #28a745;
+      --btn2-active: #1e7e34;
+    }
+
+    body.dark {
+      --bg: #121212;
+      --text: #eaeaea;
+      --btn1: #3399ff;
+      --btn1-active: #1a73e8;
+      --btn2: #4caf50;
+      --btn2-active: #3e8e41;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      height: 100vh;
+      text-align: center;
+      padding-top: 40px;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+
+    #status {
+      font-size: 1rem;
+      margin-bottom: 25px;
+      padding: 8px 15px;
+      border-radius: 8px;
+    }
+
+    .online {
+      background: #28a745;
+      color: white;
+    }
+
+    .offline {
+      background: #dc3545;
+      color: white;
+    }
+
+    .btn {
+      width: 80%;
+      max-width: 300px;
+      padding: 20px;
+      margin: 15px 0;
+      font-size: 1.6rem;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      background: var(--btn1);
+      color: white;
+      transition: background 0.2s;
+    }
+
+    .btn:active {
+      background: var(--btn1-active);
+    }
+
+    .two {
+      background: var(--btn2);
+    }
+
+    .two:active {
+      background: var(--btn2-active);
+    }
+
+    #darkToggle {
+      margin-top: 20px;
+      font-size: 1rem;
+      padding: 10px 20px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      background: #444;
+      color: white;
+    }
+  </style>
 </head>
+
 <body>
-  <header>
-    <h1>Relay Control Dashboard</h1>
-    <div id="connection-status" class="status status-offline">Offline</div>
-  </header>
+  <h1>Sunday School Bell</h1>
 
-  <main>
-    <section class="card">
-      <h2>Relay 1</h2>
-      <p>Current state: <span id="relay-state">Unknown</span></p>
-      <button id="relay-toggle">Toggle Relay</button>
-    </section>
-  </main>
+  <div id="status" class="offline">Checking connection...</div>
 
-  <footer>
-    <small>Powered by Firebase & ESP32</small>
-  </footer>
+  <button class="btn" id="oneBellBtn">1 Bell</button>
+  <button class="btn two" id="twoBellBtn">2 Bells</button>
 
-  <script src="app.js"></script>
+  <button id="darkToggle">Toggle Dark Mode</button>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.4/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.4/firebase-database-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyA4WImciK9Hlvy8GhIAKbTvpdEBfdPrJz4",
+      authDomain: "bell-ringer-876e3.firebaseapp.com",
+      databaseURL: "https://bell-ringer-876e3-default-rtdb.firebaseio.com",
+      projectId: "bell-ringer-876e3",
+      messagingSenderId: "432660580032",
+      appId: "1:432660580032:web:fdde023af3632cccb4cf25",
+      measurementId: "G-7EQQS335QH"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const commandRef = db.ref("relay/command");
+
+    // Write commands
+    document.getElementById("oneBellBtn").addEventListener("click", () => {
+      commandRef.set("ONE");
+    });
+
+    document.getElementById("twoBellBtn").addEventListener("click", () => {
+      commandRef.set("TWO");
+    });
+
+    // Dark mode toggle
+    document.getElementById("darkToggle").addEventListener("click", () => {
+      document.body.classList.toggle("dark");
+    });
+
+    // Online status indicator
+    const statusBox = document.getElementById("status");
+
+    function updateStatus(online) {
+      if (online) {
+        statusBox.textContent = "Online";
+        statusBox.className = "online";
+      } else {
+        statusBox.textContent = "Offline";
+        statusBox.className = "offline";
+      }
+    }
+
+    // Check Firebase connection every 2 seconds
+    setInterval(() => {
+      db.ref(".info/connected").once("value", (snap) => {
+        updateStatus(snap.val() === true);
+      });
+    }, 2000);
+  </script>
 </body>
 </html>
